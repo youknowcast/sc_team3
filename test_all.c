@@ -1,5 +1,13 @@
 #include <stdio.h>
+
+#define __is_safeclib__
+#ifdef __is_safeclib__
+
+#include "../safeclib/include/safe_lib.h"
+
+#else
 #include <string.h>
+#endif
 
 int main(void) {
 	char str[16];
