@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#define __is_safeclib__
+#define __is_not_safeclib__
 #ifdef __is_safeclib__
 
 #include "../safeclib/include/safe_lib.h"

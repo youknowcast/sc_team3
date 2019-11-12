@@ -11,8 +11,8 @@ make
 cd ..
 
 export LD_LIBRARY_PATH=./slibc-0.9.2/src/
-gcc -L./slibc-0.9.2/src test_all.c -lslibc
+gcc -L./slibc-0.9.2/src test_all.c -lslibc -o with_slibc
 
-./a.out
+./with_slibc
 
 
