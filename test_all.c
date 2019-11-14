@@ -146,6 +146,11 @@ int main(void) {
   set_constraint_handler_s(my_constraint_handler);
 #endif
 
+  // check for supporting Annex. K
+#ifdef __STDC_LIB_EXT1__
+  printf("std lib ext1 supported.\n");
+#endif
+
 #ifdef IS_SAFECLIB
     // なぜか関数ポインタ呼び出しで segv
     test_getenv();
