@@ -3,10 +3,15 @@
 
 #define IS_NOT_SAFECLIB
 #define IS_NOT_SLIBC
+
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
+#else
 #define IS_NOT_VC
+#endif
 
 #ifdef IS_SAFECLIB
-#include "../safeclib/include/safe_lib.h"
+#include "./safeclib/include/safe_lib.h"
+#include "./safeclib/include/safe_str_lib.h"
 #endif
 
 #ifdef IS_SLIBC
@@ -56,7 +61,11 @@ void test_getenv() {
 	r = getenv_s(&len, buf2, sizeof(buf2), "PATH");
 	printf("%d %d %s\n", r, len, buf2);
 	char* buf3;
+#ifdef IS_SAFECLIB
+	r = getenv_s(&len, buf, 1, "PATH");
+#else
 	r = getenv_s(&len, NULL, 0, "PATH");
+#endif
 	buf3 = malloc(len);
 	r = getenv_s(&len, buf3, len, "PATH");
 	printf("%d %d %s\n", r, len, buf3);
@@ -111,7 +120,7 @@ void test_sprintf() {
 	out_log("printf");
 	printf(str);
 	out_log("sprintf_s");
-	sprintf_s(str, sizeof(str), "1234567890123456");
+//	sprintf_s(str, sizeof(str), "1234567890123456");
 	out_log("printf");
 	printf(str);
 }
@@ -132,10 +141,14 @@ void test_printf() {
 
 int main(void) {
 
-#ifdef IS_NOT_VC
-	set_constraint_handler_s(my_constraint_handler);	
-#endif
+  printf("app start\n");
 
+//#ifdef IS_NOT_VC
+//	set_constraint_handler_s(my_constraint_handler);	
+//  printf("not vc\n");
+//#endif
+
+  printf("test");
 	void (*pfunc)();
 	int funcs[4] = {
 		(intptr_t)test_getenv,

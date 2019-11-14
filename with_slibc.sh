@@ -15,7 +15,7 @@ sed -i -e 's/IS_NOT_SLIBC/IS_SLIBC/g' test_all.c
 export LD_LIBRARY_PATH=./slibc-0.9.2/src/
 gcc -L./slibc-0.9.2/src test_all.c -lslibc -o with_slibc
 
-#mv test_all.c_bak test_all.c
+mv test_all.c_bak test_all.c
 
 ./with_slibc
 
