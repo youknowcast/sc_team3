@@ -122,7 +122,7 @@ void test_sprintf() {
 	out_log("printf");
 	printf(str);
 	out_log("sprintf_s");
-//	sprintf_s(str, sizeof(str), "1234567890123456");
+	sprintf_s(str, sizeof(str), "1234567890123456");
 	out_log("printf");
 	printf(str);
 }
