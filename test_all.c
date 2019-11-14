@@ -140,13 +140,12 @@ void test_printf() {
 
 
 int main(void) {
+printf("start app\n");
 
-  printf("app start\n");
-
-//#ifdef IS_NOT_VC
-//	set_constraint_handler_s(my_constraint_handler);	
-//  printf("not vc\n");
-//#endif
+#ifdef IS_NOT_VC
+  set_constraint_handler_s(my_constraint_handler);
+  printf("not vc\n");
+#endif
 
   printf("test");
 	void (*pfunc)();
