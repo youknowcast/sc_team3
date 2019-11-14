@@ -4,8 +4,7 @@
 #define IS_NOT_SAFECLIB
 #define IS_NOT_SLIBC
 
-#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
-#else
+#ifdef IS_SLIBC
 #define IS_NOT_VC
 #endif
 
@@ -122,7 +121,9 @@ void test_sprintf() {
 	out_log("printf");
 	printf(str);
 	out_log("sprintf_s");
+#ifndef IS_SAFECLIB
 	sprintf_s(str, sizeof(str), "1234567890123456");
+#endif
 	out_log("printf");
 	printf(str);
 }
@@ -143,7 +144,6 @@ void test_printf() {
 int main(void) {
 #ifdef IS_NOT_VC
   set_constraint_handler_s(my_constraint_handler);
-  printf("not vc\n");
 #endif
 
 #ifdef IS_SAFECLIB
