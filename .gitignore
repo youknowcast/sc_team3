@@ -53,3 +53,5 @@ dkms.conf
 
 slibc*
 *.c_bak
+with_slibc
+with_safeclib
