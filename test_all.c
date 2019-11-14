@@ -54,13 +54,15 @@ void test_getenv() {
 
 	out_log("getenv_s");
 	int r = getenv_s(&len, buf, sizeof(buf), "PATH");
-	printf("%d %d %s\n", r, len, buf);
+	printf("ret: %d length: %d buf: %s\n", r, len, buf);
 	len = 0;
 	char buf2[16];
-	out_log("getenv_s");
+
+	out_log("getenv_s buf length is small.");
 	r = getenv_s(&len, buf2, sizeof(buf2), "PATH");
-	printf("%d %d %s\n", r, len, buf2);
+	printf("ret: %d length: %d buf: %s\n", r, len, buf2);
 	char* buf3;
+	out_log("getenv_s buf length is NULL or 0.");
 #ifdef IS_SAFECLIB
 	r = getenv_s(&len, buf, 1, "PATH");
 #else
@@ -68,7 +70,7 @@ void test_getenv() {
 #endif
 	buf3 = malloc(len);
 	r = getenv_s(&len, buf3, len, "PATH");
-	printf("%d %d %s\n", r, len, buf3);
+	printf("ret: %d length: %d buf: %s\n", r, len, buf3);
 }
 
 void test_gets() {
