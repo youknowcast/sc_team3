@@ -138,16 +138,19 @@ void test_printf() {
 #endif
 }
 
-
 int main(void) {
-printf("start app\n");
-
 #ifdef IS_NOT_VC
   set_constraint_handler_s(my_constraint_handler);
   printf("not vc\n");
 #endif
 
-  printf("test");
+#ifdef IS_SAFECLIB
+    // なぜか関数ポインタ呼び出しで segv
+    test_getenv();
+    test_gets();
+    test_sprintf();
+    test_printf();
+#else
 	void (*pfunc)();
 	int funcs[4] = {
 		(intptr_t)test_getenv,
@@ -160,7 +163,8 @@ printf("start app\n");
 	for (i=0; i < 4; i++) {
 		pfunc = (intptr_t)funcs[i];
 		pfunc();
-	}
+  }
+#endif
 }
 
 
