@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 #define IS_NOT_SAFECLIB
-#define IS_SLIBC
+#define IS_NOT_SLIBC
 #define IS_NOT_VC
 
 #ifdef IS_SAFECLIB
