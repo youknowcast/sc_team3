@@ -1,14 +1,37 @@
 #include <stdio.h>
 
-#define __is_not_safeclib__
-#ifdef __is_safeclib__
+#define IS_NOT_SAFECLIB
+#define IS_SLIBC
+#define IS_NOT_VC
 
+#ifdef IS_SAFECLIB
 #include "../safeclib/include/safe_lib.h"
+#endif
 
-#else
+#ifdef IS_SLIBC
+#include "./slibc-0.9.2/include/slibc/string.h"
+#include <stdlib.h>
+#endif
+
+#ifndef IS_SAFECLIB
+#ifndef IS_SLIBC
 #include <string.h>
 #include <stdlib.h>
 #endif
+#endif
+
+#ifdef IS_NOT_VC
+static void my_constraint_handler(const char* msg, void* ptr, errno_t error)
+{
+    fputs("実行時制約違反が発生: ", stderr);
+    fputs(msg, stderr);
+    fprintf(stderr, "error code: %d\n", error);
+}
+#endif
+
+void out_log(char* msg) {
+	printf("\n\n[TEST] %s\n", msg);
+}
 
 void test_getenv() {
 	/*
@@ -35,6 +58,7 @@ void test_gets() {
 	 実装のない向きは、 fgets() が代用可能
 	 */
 	char buf[16];
+	out_log("plz type word: 1234567890");
 	gets(buf);
 	printf("%s\n", buf);
 	gets_s(buf, sizeof(buf));
@@ -53,12 +77,37 @@ void test_printf() {
 	char str[16];
 	//	strcpy_s(str, 13, "Hello World!");
 	//	sprintf(str, "1234567890123456");
+	out_log("snprintf");
 	snprintf(str, sizeof(str), "1234567890123456");
+	out_log("printf");
 	printf(str);
+	out_log("sprintf_s");
 	sprintf_s(str, sizeof(str), "1234567890123456");
+	out_log("printf");
 	printf(str);
 }
 
+
+
 int main(void) {
+
+#ifdef IS_NOT_VC
+	set_constraint_handler_s(my_constraint_handler);	
+#endif
+
+	void (*pfunc)();
+	int funcs[3] = {
+		test_getenv,
+		test_gets,
+		test_printf
+	};
+	
+	int i;
+	for (i=0; i < 4; i++) {
+		pfunc = funcs[i];
+		pfunc();
+	}
+	
+
 	return 0;
 }
