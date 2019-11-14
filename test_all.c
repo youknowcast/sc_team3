@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 
 #define IS_NOT_SAFECLIB
 #define IS_SLIBC
@@ -40,15 +41,25 @@ void test_getenv() {
 	 もちろん、良い子は dup してから保存するが、レースコンディションもあり得る。
 	 getenv_s() を利用するとそのあたりの諸々も問題が解決可能
 	 しかし、例によってパラメータとして与えるバッファ長コピー対象のデータ長より長くないとエラーになるため、とても使いにくい。
-	 バッファ長だけを返すインタフェースもないので、とてつもなく使いにくい。厳密にやるならば、ロックを取って getenv() して、文字数数えて、 malloc() だが、
-	 そこまでするならロック取って getenv() して、 dup で十分。
-	 なお getenv_s() はバッファ超不足のときは落ちるのではなくて ERANGE を返す模様。
+	 なお getenv_s() はバッファ超不足のときは落ちるのではなくて ERANGE を返したうえ、必用なバッファ長は取得できる模様。
 	 */
- 
-	size_t len;
+
+	size_t len=0;
 	char buf[1024];
+
+	out_log("getenv_s");
 	int r = getenv_s(&len, buf, sizeof(buf), "PATH");
 	printf("%d %d %s\n", r, len, buf);
+	len = 0;
+	char buf2[16];
+	out_log("getenv_s");
+	r = getenv_s(&len, buf2, sizeof(buf2), "PATH");
+	printf("%d %d %s\n", r, len, buf2);
+	char* buf3;
+	r = getenv_s(&len, NULL, 0, "PATH");
+	buf3 = malloc(len);
+	r = getenv_s(&len, buf3, len, "PATH");
+	printf("%d %d %s\n", r, len, buf3);
 }
 
 void test_gets() {
@@ -59,17 +70,35 @@ void test_gets() {
 	 */
 	char buf[16];
 	out_log("plz type word: 1234567890");
-	gets(buf);
-	printf("%s\n", buf);
-	gets_s(buf, sizeof(buf));
-	printf("%s\n", buf);
+	char buf2[16];
+	char* buf4gets =(buf>buf2)?buf2:buf;
+
+	out_log("buf information");
+	printf("buf: %p buf2: %p\n", buf, buf2);
+
+	out_log("gets");
+	memset(buf, 0, sizeof(buf));
+	memset(buf2, 0, sizeof(buf2));
+	gets(buf4gets);
+	printf("gets : buf : '%s'\n", buf);
+	printf("gets : buf2: '%s'\n", buf2);
+	memset(buf, 0, sizeof(buf));
+	memset(buf2, 0, sizeof(buf2));
+
 	/* fgets を使う場合は末尾が改行ではない場合はバッファが足りなかったはず。*/
-	fgets(buf, sizeof(buf), stdin);
+	out_log("fgets");
+	fgets(buf4gets, sizeof(buf), stdin);
+	printf("fgets: buf : '%s'\n", buf);
+	printf("fgets: buf2: '%s'\n", buf2);
+
+	out_log("gets_s");
+	gets_s(buf4gets, sizeof(buf));
+	printf("%s\n", buf);
 }
 
-void test_printf() {
+void test_sprintf() {
 	/*
-	 みんな大好き printf() 件 sprintf_s 
+	 みんな大好き printf() 件 sprintf_s
 	 sprintf_s はエラーになる。。
 	 実装のない向きは、 snprintf() が代用可能
 	snprintf はバッファが足りない場合はバッファ分書く、
@@ -87,6 +116,18 @@ void test_printf() {
 	printf(str);
 }
 
+void test_printf() {
+	int n;
+	out_log("printf with \%n");
+	printf("hogehoge%n\n", &n);
+	printf("%d\n", n);
+
+#ifdef IS_SLIBC
+	out_log("printf_s with \%n");
+	printf_s("hogehoge%n\n", &n);
+	printf_s("%d\n", n);
+#endif
+}
 
 
 int main(void) {
@@ -96,18 +137,18 @@ int main(void) {
 #endif
 
 	void (*pfunc)();
-	int funcs[3] = {
-		test_getenv,
-		test_gets,
-		test_printf
+	int funcs[4] = {
+		(intptr_t)test_getenv,
+		(intptr_t)test_gets,
+		(intptr_t)test_sprintf,
+		(intptr_t)test_printf
 	};
 	
 	int i;
 	for (i=0; i < 4; i++) {
-		pfunc = funcs[i];
+		pfunc = (intptr_t)funcs[i];
 		pfunc();
 	}
-	
-
-	return 0;
 }
+
+
